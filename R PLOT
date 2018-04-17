@@ -990,9 +990,9 @@ patternLabelsx <- c("12","21","13","31","23","32")
 MINUTE <- 60000
 
 
-m <- all_patterns_devices
+m <- all_patterns_smartdevices
 
-test_name <- "devices"
+test_name <- "smartdevices"
 
 df <- m
 df <- ddply(df,.(time_window, time_leap, length),summarize,freq=sum(frequency))
@@ -1064,6 +1064,7 @@ lapply(seq(2,maxLen), function(cc) {
   gg <- gg + theme_tufte(base_family="Helvetica")
   gg <- gg + theme(axis.ticks=element_blank())
   gg <- gg + theme(axis.text=element_text(size=5))
+  gg <- gg + theme(axis.text.x=element_text(angle=90, vjust=0.5))
   gg <- gg + theme(panel.border=element_blank())
   gg <- gg + theme(plot.title=element_text(hjust=0, size=6))
   gg <- gg + theme(panel.margin.x=unit(0.5, "cm"))
@@ -1077,7 +1078,7 @@ lapply(seq(2,maxLen), function(cc) {
   gg
 }) -> cclist
 
-cclist[["ncol"]] <- 2
+cclist[["ncol"]] <- 4
 
 do.call(gridExtra::grid.arrange, cclist)
 
