@@ -1,0 +1,1177 @@
+# R PLOT
+
+m <- read.csv("algo1.csv")
+test_name <- "smartdevices"
+using_time_window <- 1
+if (using_time_window) {xLabel <- "Time window"}
+else {xLabel <- "Time leap"}
+test1 <- m[which(m[,"Test"] == test_name), ]
+test1 <- test1[which(test1[,"UsingTimeWindow"] == using_time_window), ]
+test1 <- test1[which(test1[,"Patterns"] > 0), ]
+test1 <- test1[c(8,9,11)]
+
+library(ggplot2)
+theme_set(theme_bw())
+
+# Plot
+ggplot(test1, aes(x=Time, y=ExecutionTime)) + 
+  geom_point(size=3) + 
+  geom_segment(aes(x=Time, 
+                   xend=Time, 
+                   y=0, 
+                   yend=ExecutionTime)) + 
+  labs(title="Execution time", 
+       subtitle="Time Vs Avg. ExecutionTime", 
+       caption="source: mpg") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6))
+
+
+
+
+
+m <- read.csv("algo1.csv")
+test_name <- "smartdevices"
+using_time_window <- 1
+if (using_time_window) {xLabel <- "Time window"}
+else {xLabel <- "Time leap"}
+test1 <- m[which(m[,"Test"] == test_name), ]
+test1 <- test1[which(test1[,"UsingTimeWindow"] == using_time_window), ]
+test1 <- test1[which(test1[,"Patterns"] > 0), ]
+test1 <- test1[c(8,9,11)]
+
+x  <- test1[,1]
+y1 <- test1[,2]
+y2 <- test1[,3]
+df <- data.frame(x,y1,y2)
+
+g <- ggplot(df, aes(x))
+g <- g + geom_line(aes(y=y1), colour="red")
+g <- g + geom_line(aes(y=y2), colour="green")
+g
+
+par(mar = c(5,5,2,5))
+with(d, plot(x, Time, type="l", col="red3", 
+             ylab="Execution Time",
+             ylim=c(0,3)))
+par(new = T)
+with(d, plot(x, n, pch=16, axes=F, xlab=NA, ylab=NA, cex=1.2))
+axis(side = 4)
+mtext(side = 4, line = 3, 'Number genes selected')
+legend("topleft",
+       legend=c(expression(-log[10](italic(p))), "N genes"),
+       lty=c(1,0), pch=c(NA, 16), col=c("red3", "black"))
+
+
+######################### PLOTTING TIME WINDOW AND TIME LEAP
+
+tests <- c("smarttech", "smartdevices", "hardware", "smartmobility", "devices", "smartgrid", "smarthomes", "predictiveanalytics", "datamining", "smartphone", "arduino", "itsecurity", "artificial", "raspberrypi")
+counter <- 1
+
+for (test in tests) {
+
+#fit <- lm(some ~ model)
+test_name <- test
+using_time_window <- 0
+if (using_time_window) {yLabel <- "window"}
+else {yLabel <- "leap"}
+filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = "")
+#png(filename)
+
+m <- read.csv("algo1.csv")
+test1 <- m[which(m[,"Test"] == test_name), ]
+test1 <- test1[which(test1[,"UsingTimeWindow"] == using_time_window), ]
+test1 <- test1[which(test1[,"Patterns"] > 0), ]
+test1 <- test1[c(8,9,11)]
+
+biggest_time = tail(test1, n=1)[,3]
+biggest_patterns = tail(test1, n=1)[,2]
+ratio = biggest_time/biggest_patterns/2
+
+library(ggplot2)
+p <- ggplot(test1, aes(x = Time))
+  p <- p + geom_line(aes(y = ExecutionTime, colour = "Execution time"))
+  
+  # adding the relative humidity data, transformed to match roughly the range of the temperature
+  p <- p + geom_line(aes(y = Patterns*ratio, colour = "Number of patterns"))
+  
+  # now adding the secondary axis, following the example in the help file ?scale_y_continuous
+  # and, very important, reverting the above transformation
+  p <- p + scale_y_continuous(sec.axis = sec_axis(~./ratio, name = "Number of patterns found"))
+  
+  # modifying colours and theme options
+  p <- p + scale_colour_manual(values = c("blue", "red"))
+  p <- p + labs(y = "Execution time (ms)",
+                x = paste("Time (ms)", yLabel, sep = " "),
+                colour = "Output")
+  p <- p + theme(legend.position = c(0.8, 0.1))
+plot(p)
+test_name <- paste(toString(counter), test, sep = "_")
+dev.copy(jpeg,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".jpg", sep = ""));
+dev.off()
+counter <- counter + 1
+
+}
+
+
+######################### PLOTTING TIME WINDOW AND TIME LEAP ALGO3
+
+tests <- c("smartdevices", "devices", "datamining", "itsecurity")
+counter <- 1
+
+m <- read.csv("algo3_execution_time.csv")
+
+for (test in tests) {
+test1 <- m[which(m[,"Test"] == test), ]
+plot(test1[,"ExecutionTime"], type="l", col="red", main="Scalability w.r.t. time window", xlab="Time window of increasing order up to one hour", ylab="Execution time", cex.lab=0.8, lwd=2)
+dev.copy(jpeg,filename=paste(test, ".jpg", sep = ""));
+dev.off()
+
+}
+
+######################### PLOTTING SCALABILITY
+
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+tests <- c("smarttech", "smartdevices", "hardware", "smartmobility", "devices", "smartgrid", "smarthomes", "predictiveanalytics", "datamining", "smartphone", "arduino", "itsecurity", "artificial", "raspberrypi")
+legends <-c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+plot_colors <- c("gray90", "gray85", "gray80","gray70","gray60", "gray50", "gray40", "gray30", "gray20", "gray10", "gray0")
+counter <- 1
+using_time_window <- 0
+if (using_time_window) {yLabel <- "window"}
+else {yLabel <- "leap"}
+m <- read.csv("algo1.csv")
+yLabel <- "leap"
+for (i in seq(1,11)) {
+test <- m[which(m[,"UsingTimeWindow"] == using_time_window), ]
+test1 <- test[which(test[,"Time"] == time[i]), ]
+plot(test1[,"ExecutionTime"], type="l", col=plot_colors[i], main="Scalability w.r.t. size of network", xlab="Tests whose size is of increasing order", ylab="Execution time", cex.lab=0.8, lwd=2)
+
+dev.copy(jpeg,filename=paste(paste(toString(time[i]), paste("time", yLabel, sep = "_"), sep = "_"), ".jpg", sep = ""));
+dev.off()
+
+}
+
+
+######################### PLOTTING SCALABILITY ALGO 3
+
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+tests <- c("smartdevices", "devices", "smartgrid", "smarthomes", "predictiveanalytics", "datamining", "smartphone", "arduino", "itsecurity", "artificial", "raspberrypi")
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+legends <-c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+plot_colors <- c("gray90", "gray85", "gray80","gray70","gray60", "gray50", "gray40", "gray30", "gray20", "gray10", "gray0")
+counter <- 1
+using_time_window <- 1
+if (using_time_window) {yLabel <- "window"}
+else {yLabel <- "leap"}
+m <- read.csv("algo1.csv")
+
+for (i in seq(1,11)) {
+
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+tests <- c("smarttech", "smartdevices", "hardware", "smartmobility", "devices", "smartgrid", "smarthomes", "predictiveanalytics", "datamining", "smartphone", "arduino", "itsecurity", "artificial", "raspberrypi")
+legends <-c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+plot_colors <- c("gray90", "gray85", "gray80","gray70","gray60", "gray50", "gray40", "gray30", "gray20", "gray10", "gray0")
+counter <- 1
+using_time_window <- 0
+if (using_time_window) {yLabel <- "window"}
+else {yLabel <- "leap"}
+m <- read.csv("algo1.csv")
+yLabel <- "leap"
+for (i in seq(1,11)) {
+test <- m[which(m[,"UsingTimeWindow"] == using_time_window), ]
+test1 <- test[which(test[,"Time"] == time[i]), ]
+plot(test1[,"ExecutionTime"], type="l", col=plot_colors[i], main="Scalability w.r.t. size of network", xlab="Tests whose size is of increasing order", ylab="Execution time", cex.lab=0.8, lwd=2)) {
+test <- m[which(m[,"UsingTimeWindow"] == using_time_window), ]
+test1 <- test[which(test[,"Time"] == time[i]), ]
+plot(test1[,"ExecutionTime"], time, type="l", col=plot_colors[i], main="Pattern length distribution w.r.t. time windows up to one hour", xlab="Length of patterns", ylab="Frequency", cex.lab=0.8, lwd=2)
+
+#dev.copy(jpeg,filename=paste(paste(toString(time[i]), paste("time", yLabel, sep = "_"), sep = "_"), ".jpg", sep = ""));
+#dev.off()
+
+}
+
+######################### PLOTTING LENGTH DISTRIBUTION
+
+
+
+tests <- c("smartdevices", "devices", "datamining", "itsecurity")
+counter <- 1
+
+for (test in tests) {
+
+test_name <- test
+using_time_window <- 0
+if (using_time_window) {yLabel <- "window"}
+else {yLabel <- "leap"}
+time <- 1000
+filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = "")
+#png(filename)
+
+plot_colors <- c("gray90", "gray85", "gray80","gray70","gray60", "gray50", "gray40", "gray30", "gray20", "gray10", "gray0")
+#library(RColorBrewer)
+#plot_colors <- list(color = colorRampPalette(brewer.pal(11,"Spectral"))(11))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+
+m <- read.csv("algo1_pattern_length.csv")
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+test1 <- test[which(test[,"Time"] == time[11]), ]
+test1 <- t(test1[c(10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25)])
+plot(test1, type="l", col=plot_colors[11], main="Pattern length distribution w.r.t. time windows up to one hour", xlab="Length of patterns", ylab="Frequency", cex.lab=0.8, lwd=2)
+
+for (i in seq(1,10)) {
+
+test1 <- test[which(test[,"Time"] == time[i]), ]
+test1 <- t(test1[c(10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25)])
+lines(test1, type="l", col=plot_colors[i], pch=22, lty=2)
+
+}
+
+legend("topright", c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour"), cex=0.8, col=plot_colors,
+   lty=1:11, lwd=2, bty="n");
+#test_name <- paste(toString(counter), test, sep = "_")
+#dev.copy(jpeg,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".jpg", sep = ""));
+#dev.off()
+counter <- counter + 1
+
+}
+
+
+############################## PLOTTING NO. OF PATTERNS BY LENGTH ------ VERY NICE
+FILE: algo1_pattern_length.csv
+
+tests <- c("smartdevices", "devices", "datamining", "itsecurity")
+library(RColorBrewer)
+plot_colors <- list(color = colorRampPalette(brewer.pal(11,"Spectral"))(11))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+timeLabels <- c(" ", " ", "<2 minute", " ", "", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11)
+using_time_window <- 0
+yLabel <- "leap"
+if (using_time_window) {yLabel <- "window"}
+counter <- 1
+
+library(ggplot2)
+m <- algo1_pattern_length
+
+for (test_name in tests) {
+
+test_name <- "devices"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+
+df <- data.frame(Time=time, Frequency=unlist(test[c(11)], use.names=FALSE), PatternLength = 2)
+for (i in seq(2,15)) { df <- rbind(df, data.frame(Time=time, Frequency=unlist(test[c(10+i)], use.names=FALSE), PatternLength = i+1)) }
+df$PatternLength <- factor(df$PatternLength)
+#df$Time <- factor(df$Time)
+lineType <- c("solid", "longdash", "dotted", "solid", "longdash", "dotted", "solid", "longdash", "dotted", "solid", "longdash", "dotted", "solid", "longdash", "dotted", "solid")
+color <- colorRampPalette(brewer.pal(11,"Spectral"))(16)
+
+p<-ggplot(df, aes(x=Time, y=Frequency, color=PatternLength, group=PatternLength, shape=PatternLength, linetype = PatternLength)) +
+    geom_line() +
+    geom_point() + 
+    xlab("Time leaps") +
+    ylab("Number of patterns' instances") +
+    scale_color_discrete(name = "Pattern\nLength") +
+    scale_linetype_discrete(name = "Pattern\nLength") +
+    scale_shape_manual(name = "Pattern\nLength", values = c(0:15)) +
+    labs(title = "Number of patterns' instances w.r.t. time leaps up to one hour", subtitle = paste("Dataset:", test_name, sep = " ")) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10))
+#p+scale_x_continuous(labels= timeLabels)
+#p+scale_color_manual(values = color)
+p
+
+#dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+#dev.off()
+
+}
+
+############################## PLOTTING HEAT MAP 3 NODES 3 EDGES PATTERNS ---- USING SNAP
+
+
+library(RColorBrewer)
+library(ggplot2)
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+plot_colors <- list(color = colorRampPalette(brewer.pal(11,"Spectral"))(11))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+timeLabels <-c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+
+using_time_window <- 0
+yLabel <- "leap"
+if (using_time_window) {yLabel <- "window"}
+
+
+m <- algo3_count_compare_snap
+
+
+for (t in time) {
+
+test_name <- "smartdevices"
+t <- time[1]
+
+test <- m[which(m[,"Test"] == test_name), ]
+test1 <- test[which(test[,"TimeWindow"] == t), ]
+
+df <- data.frame(test1[c(7,8,9,10,11,12,13)])
+df$PatternGroup <- factor(df$PatternGroup)
+
+cols <- c("X123","X213","X133","X313","X233","X323")
+df[cols] <- log(df[cols])
+df.melted <- melt(df,id="PatternGroup")
+ggplot(df.melted, aes(x = variable, y = PatternGroup, fill = as.factor(value))) + geom_tile() + coord_equal() + xlab("The third edge") + ylab("The first two edges") + labs(value = "Log of\nthe frequency")
+
+dev.copy(png,filename=paste(paste(test_name, toString(t), sep = "_"), ".png", sep = ""));
+dev.off()
+
+}
+
+
+############################## PLOTTING CDF OF PATTERN LENGTH ALGO1
+FILE: algo1_pattern_length.csv
+
+tests <- c("smartdevices", "devices", "datamining", "itsecurity")
+library(RColorBrewer)
+plot_colors <- list(color = colorRampPalette(brewer.pal(11,"Spectral"))(11))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+timeLabels <- c(" ", " ", "<2 minute", " ", "", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11)
+using_time_window <- 1
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+counter <- 1
+
+library(ggplot2)
+m <- algo1_pattern_length
+
+test_name <- "itsecurity"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+
+#test1 <- test[which(test[,"Time"] == 2400000), ]
+#df <- data.frame(length=seq(2,16), freq = unlist(test1[c(11,12,13,14,15,16,17,18,19,20,21,22,23,24,25)], use.names=FALSE))
+#ggplot(df, aes(freq)) + stat_ecdf()
+
+
+test1 <- test[which(test[,"Time"] == time[1]), ]
+test2 <- unlist(test1[c(11,12,13,14,15,16,17,18,19,20,21,22,23,24,25)], use.names=FALSE)
+df <- data.frame(length=rep(2:2, each=test2[1]), time = time[1])
+for (i in seq(3,16)) { 
+	if (test2[i-1] == 0) break;
+	df <- rbind(df, data.frame(length=rep(i:i, each=test2[i-1]), time = time[1])) 
+	}
+
+for (t in seq(2,11)) {
+
+test1 <- test[which(test[,"Time"] == time[t]), ]
+test2 <- unlist(test1[c(11,12,13,14,15,16,17,18,19,20,21,22,23,24,25)], use.names=FALSE)
+for (i in seq(2,16)) { 
+	if (test2[i-1] == 0) break;
+	df <- rbind(df, data.frame(length=rep(i:i, each=test2[i-1]), time = time[t])) 
+	}
+
+}
+df$time <- factor(df$time)
+mytitle = paste(paste("Distribution of patterns' length w.r.t. time", yLabel, sep = " "), "up to one hour", sep = " ")
+ggplot(df, aes(length, colour = time, linetype = time, shape = time)) + stat_ecdf(geom = "point")  + stat_ecdf(geom = "step") + 
+	xlab("Pattern length") +
+    ylab("Distribution of pattern length") +
+    scale_color_discrete(name = paste("Time", yLabel, sep = " "), labels = timeLabels) +
+    scale_linetype_discrete(name = paste("Time", yLabel, sep = " "), labels = timeLabels) +
+    scale_shape_manual(name = paste("Time", yLabel, sep = " "), values = c(0:15), labels = timeLabels) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " "))
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+
+
+############################## PLOTTING DEGREE DISTRIBUTION
+
+tests <- c("smartdevices", "devices", "datamining", "itsecurity", "smarthomes")
+library(RColorBrewer)
+plot_colors <- list(color = colorRampPalette(brewer.pal(11,"Spectral"))(11))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+timeLabels <- c("1 second", " ", "<2 minute", " ", "", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11)
+using_time_window <- 1
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+counter <- 1
+
+library(ggplot2)
+m <- degree_distribution
+
+test_name <- "smartdevices"
+test <- m[which(m[,"Test"] == test_name), ]
+
+
+df <- data.frame(m)
+
+#df["Degree"] <- log(df["Degree"])
+
+df$Test <- factor(df$Test)
+
+g <- ggplot(df, aes(Degree)) + scale_fill_brewer(palette = "Spectral")
+
+ggplot(data=df, aes(x=Degree)) + 
+  geom_bar(aes(y = ..prop.., group = 1)) + xlim(0,30)
+
+g + geom_histogram(aes(fill=Test), 
+                   binwidth = .5, 
+                   col="black", 
+                   size=.1) +
+                   xlim(0,30) + scale_x_discrete(stat="count")
+
+g <- ggplot(df, aes(Degree))
+g + geom_density(aes(fill=Test), alpha=0.8) + xlim(0,30)
+
+mytitle = "Degree distribution of testing datasets"
+ggplot(df, aes(Degree, colour = Test, linetype = Test, shape = Test)) + stat_ecdf(geom = "point")  + stat_ecdf(geom = "step") + 
+	xlab("Degree") +
+    ylab("Degree distribution") +
+    scale_color_discrete(name = "Datasets") +
+    scale_linetype_discrete(name = "Datasets") +
+    scale_shape_manual(name = "Datasets", values = c(0:15)) +
+    labs(title = mytitle, subtitle = "(zoomed in at degree of smaller or equal to 30)") +
+    #xlim(0,1000) + 
+    scale_y_continuous(limits = c(0.85, 1)) +
+    scale_x_continuous(limits = c(0, 30)) +
+    facet_wrap(~ Test, scales = "free_x", ncol=2)
+
+
+
+g <- ggplot(df, aes(Degree))
+g + geom_density(aes(fill=Test), alpha=0.8) + ylim(0,1) + xlim(0,30) + scale_x_discrete(drop=T)
+
+ggplot(df, aes(Degree)) + geom_bar()
+
+
+############################## PLOTTING NO. OF PATTERNS BY LENGTH ------ VERY NICE
+FILE: algo1_pattern_length_time_increment_5minutes.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+plot_colors <- list(color = colorRampPalette(brewer.pal(18,"Spectral"))(18))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
+timeLabels <- c(" ", " ", "<2 minute", " ", "", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+
+library(ggplot2)
+
+for (test in tests) {
+
+m <- algo1_pattern_length_time_increment_5minutes
+
+using_time_window <- 1
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+
+
+test_name <- "itsecurity"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+
+df <- data.frame(Time=time, Frequency=unlist(test[c(11)], use.names=FALSE), PatternLength = 2)
+for (i in seq(2,15)) { df <- rbind(df, data.frame(Time=time, Frequency=unlist(test[c(10+i)], use.names=FALSE), PatternLength = i+1)) }
+df$PatternLength <- factor(df$PatternLength)
+#df$Time <- factor(df$Time)
+
+mytitle = paste(paste("Distribution of patterns' length w.r.t. time", yLabel, sep = " "), "up to one hour", sep = " ")
+ggplot(df, aes(x=Time, y=Frequency, color=PatternLength, group=PatternLength, shape=PatternLength, linetype = PatternLength)) +
+    geom_line() +
+    geom_point() + 
+    xlab(paste("Time", yLabel, sep = " ")) +
+    ylab("Number of patterns' instances") +
+    scale_color_discrete(name = "Number\nof edges") +
+    scale_linetype_discrete(name = "Number\nof edges") +
+    scale_shape_manual(name = "Number\nof edges", values = c(0:15)) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10))
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+}
+
+############################## PLOTTING NO. OF PATTERNS BY LENGTH ------ VERY NICE
+FILE: algo1_pattern_length_time_increment_5minutes_network_fixed.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+plot_colors <- list(color = colorRampPalette(brewer.pal(18,"Spectral"))(18))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
+timeLabels <- c(" ", " ", "<2 minute", " ", "", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+
+library(ggplot2)
+
+for (test in tests) {
+
+m <- algo1_pattern_length_time_increment_5minutes_network_fixed
+
+using_time_window <- 0
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+
+
+test_name <- "smarthomes"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+
+df <- data.frame(Time=time, Frequency=unlist(test[c(9)], use.names=FALSE), PatternLength = 2)
+for (i in seq(2,15)) { df <- rbind(df, data.frame(Time=time, Frequency=unlist(test[c(8+i)], use.names=FALSE), PatternLength = i+1)) }
+df$PatternLength <- factor(df$PatternLength)
+#df$Time <- factor(df$Time)
+
+mytitle = paste(paste("Distribution of patterns' length w.r.t. time", yLabel, sep = " "), "up to one hour", sep = " ")
+ggplot(df, aes(x=Time, y=Frequency, color=PatternLength, group=PatternLength, shape=PatternLength, linetype = PatternLength)) +
+    geom_line() +
+    geom_point() + 
+    xlab(paste("Time", yLabel, sep = " ")) +
+    ylab("Number of patterns' instances") +
+    scale_color_discrete(name = "Number\nof edges") +
+    scale_linetype_discrete(name = "Number\nof edges") +
+    scale_shape_manual(name = "Number\nof edges", values = c(0:15)) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10))
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+}
+
+############################## PLOTTING CDF OF PATTERN LENGTH ALGO1
+FILE: algo1_pattern_length_time_increment_5minutes.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+plot_colors <- list(color = colorRampPalette(brewer.pal(18,"Spectral"))(18))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
+timeLabels <- c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+
+library(ggplot2)
+
+m <- algo1_pattern_length_time_increment_5minutes
+
+using_time_window <- 0
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+
+test_name <- "devices"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+
+test1 <- test[which(test[,"Time"] == time[1]), ]
+test2 <- unlist(test1[c(11,12,13,14,15,16,17,18,19,20,21,22,23,24,25)], use.names=FALSE)
+
+df <- data.frame(length=rep(2:2, each=test2[1]), time = time[1], group = 1)
+for (i in seq(3,16)) { 
+	if (test2[i-1] == 0) break;
+	df <- rbind(df, data.frame(length=rep(i:i, each=test2[i-1]), time = time[1], group = 1)) 
+	}
+
+for (t in seq(2,18)) {
+
+test1 <- test[which(test[,"Time"] == time[t]), ]
+test2 <- unlist(test1[c(11,12,13,14,15,16,17,18,19,20,21,22,23,24,25)], use.names=FALSE)
+for (i in seq(2,16)) { 
+	if (test2[i-1] == 0) break;
+	df <- rbind(df, data.frame(length=rep(i:i, each=test2[i-1]), time = time[t], group = ((t-1)%/%3)+1)) 
+	}
+
+}
+df$time <- factor(df$time)
+df$group <- factor(df$group)
+df$grouplabel <- factor(df$group, labels = c("1 sec - 10 sec", "30 sec - 2 min", "5 min - 15 min", "20 min - 30 min", "35 min - 45 min", "50 min - 1 hour"))
+mytitle = paste(paste("Distribution of patterns' length w.r.t. time", yLabel, sep = " "), "up to one hour", sep = " ")
+ggplot(df, aes(length, colour = time, linetype = time, shape = time)) + stat_ecdf(geom = "point")  + stat_ecdf(geom = "step") + 
+	xlab("Pattern length") +
+    ylab("Distribution of pattern length") +
+    scale_color_discrete(name = paste("Time", yLabel, sep = " "), labels = timeLabels) +
+    scale_linetype_manual(name = paste("Time", yLabel, sep = " "), values = c(1:18), labels = timeLabels) +
+    scale_shape_manual(name = paste("Time", yLabel, sep = " "), values = c(0:17), labels = timeLabels) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) + 
+    facet_wrap( ~ grouplabel, nrow = 2, strip.position = "bottom", labeller = label_context) +
+    theme(strip.background = element_blank(), strip.placement = "outside")
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+
+############################## PLOTTING NO. OF PATTERNS BY LENGTH ------ COMPARING TIME LEAP / WINDOW
+FILE: algo1_pattern_length_time_increment_5minutes.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+plot_colors <- list(color = colorRampPalette(brewer.pal(18,"Spectral"))(18))
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
+timeLabels <- c(" ", " ", "<5 minute", " ", "", " ", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+
+library(ggplot2)
+
+for (test in tests) {
+
+m <- algo1_pattern_length_time_increment_5minutes
+
+using_time_window <- 1
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+
+
+test_name <- "itsecurity"
+
+test <- m[which(m[,"Test"] == test_name), ]
+
+tmp = unlist(test[18,11:25], use.names=FALSE)
+count1 = length(tmp[tmp > 0])
+tmp = unlist(test[36,11:25], use.names=FALSE)
+count2 = length(tmp[tmp > 0])
+count = max(count1, count2)
+
+test1 <- test[which(test[,"UsingTimeWindow"] == 1), ]
+
+df <- data.frame(Time=time, Frequency=unlist(test1[c(11)], use.names=FALSE), PatternLength = 2, timeWindow = "Time window")
+for (i in seq(2,count)) { 
+df <- rbind(df, data.frame(Time=time, Frequency=unlist(test1[c(10+i)], use.names=FALSE), PatternLength = i+1, timeWindow = "Time window"))
+}
+
+test1 <- test[which(test[,"UsingTimeWindow"] == 0), ]
+for (i in seq(1,count)) { 
+df <- rbind(df, data.frame(Time=time, Frequency=unlist(test1[c(10+i)], use.names=FALSE), PatternLength = i+1, timeWindow = "Time leap"))
+}
+
+stripLabels = c("2 edges", "3 edges", "4 edges", "5 edges", "6 edges", "7 edges", "8 edges", "9 edges", "10 edges", "11 edges", "12 edges", "13 edges", "14 edges", "15 edges", "16 edges")
+
+df$PatternLength <- factor(df$PatternLength, labels = stripLabels[1:count])
+df$timeWindow <- factor(df$timeWindow)
+
+mytitle = "Comparison of pattern frequency between using time window and time leap w.r.t. patterns' length"
+ggplot(df, aes(x=Time, y=Frequency, color=PatternLength, group=timeWindow, shape=PatternLength, linetype = timeWindow)) +
+    geom_line() +
+    geom_point() + 
+    xlab("Time windows / leaps") +
+    ylab("Number of patterns' instances") +
+    scale_color_discrete(name = "Number of edges") +
+    scale_linetype_discrete(name = "Constrained by") +
+    scale_shape_manual(name = "Number of edges", values = c(0:15)) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10)) +
+    facet_wrap( ~ PatternLength, ncol = 2, scales = "free_y", strip.position = "top", labeller = label_context) +
+    theme(strip.background = element_blank(), strip.placement = "outside")
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+}
+
+
+############################## PLOTTING NO. OF PATTERNS BY SIZE ------ VERY NICE
+FILE: algo1_pattern_size_time_increment_5minutes.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
+timeLabels <- c(" ", " ", "<2 minute", " ", "", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+
+library(ggplot2)
+
+for (test in tests) {
+
+m <- algo1_pattern_size_time_increment_5minutes
+
+using_time_window <- 0
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+
+
+test_name <- "itsecurity"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+
+df <- data.frame(Time=time, Frequency=unlist(test[c(11)], use.names=FALSE), PatternLength = 2)
+for (i in seq(2,10)) { df <- rbind(df, data.frame(Time=time, Frequency=unlist(test[c(10+i)], use.names=FALSE), PatternLength = i+1)) }
+df$PatternLength <- factor(df$PatternLength)
+#df$Time <- factor(df$Time)
+
+mytitle = paste(paste("Pattern frequency of different sizes w.r.t. time", yLabel, sep = " "), "up to one hour", sep = " ")
+ggplot(df, aes(x=Time, y=Frequency, color=PatternLength, group=PatternLength, shape=PatternLength, linetype = PatternLength)) +
+    geom_line() +
+    geom_point() + 
+    xlab(paste("Time", yLabel, sep = " ")) +
+    ylab("Number of patterns' instances") +
+    scale_color_discrete(name = "Number\nof actors") +
+    scale_linetype_discrete(name = "Number\nof actors") +
+    scale_shape_manual(name = "Number\nof actors", values = c(0:10)) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10))
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+}
+
+
+############################## PLOTTING CDF OF PATTERN SIZE ALGO1
+FILE: algo1_pattern_size_time_increment_5minutes.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
+timeLabels <- c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+
+library(ggplot2)
+
+m <- algo1_pattern_size_time_increment_5minutes
+
+using_time_window <- 0
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+
+test_name <- "devices"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+
+test1 <- test[which(test[,"Time"] == time[1]), ]
+test2 <- unlist(test1[c(11,12,13,14,15,16,17,18,19,20)], use.names=FALSE)
+
+df <- data.frame(length=rep(2:2, each=test2[1]), time = time[1], group = 1)
+for (i in seq(3,11)) { 
+	if (test2[i-1] == 0) break;
+	df <- rbind(df, data.frame(length=rep(i:i, each=test2[i-1]), time = time[1], group = 1)) 
+	}
+
+for (t in seq(2,18)) {
+
+test1 <- test[which(test[,"Time"] == time[t]), ]
+test2 <- unlist(test1[c(11,12,13,14,15,16,17,18,19,20)], use.names=FALSE)
+for (i in seq(2,11)) { 
+	if (test2[i-1] == 0) break;
+	df <- rbind(df, data.frame(length=rep(i:i, each=test2[i-1]), time = time[t], group = ((t-1)%/%3)+1)) 
+	}
+
+}
+df$time <- factor(df$time)
+df$group <- factor(df$group)
+df$grouplabel <- factor(df$group, labels = c("1 sec - 10 sec", "30 sec - 2 min", "5 min - 15 min", "20 min - 30 min", "35 min - 45 min", "50 min - 1 hour"))
+mytitle = paste(paste("Distribution of patterns' size w.r.t. time", yLabel, sep = " "), "up to one hour", sep = " ")
+ggplot(df, aes(length, colour = time, linetype = time, shape = time)) + stat_ecdf(geom = "point")  + stat_ecdf(geom = "step") + 
+	xlab("Pattern length") +
+    ylab("Distribution of pattern length") +
+    scale_color_discrete(name = paste("Time", yLabel, sep = " "), labels = timeLabels) +
+    scale_linetype_manual(name = paste("Time", yLabel, sep = " "), values = c(1:18), labels = timeLabels) +
+    scale_shape_manual(name = paste("Time", yLabel, sep = " "), values = c(0:17), labels = timeLabels) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) + 
+    facet_wrap( ~ grouplabel, nrow = 2, strip.position = "bottom", labeller = label_context) +
+    theme(strip.background = element_blank(), strip.placement = "outside")
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+
+############################## PLOTTING NO. OF PATTERNS BY LENGTH ------ COMPARING TIME LEAP / WINDOW
+FILE: algo1_pattern_size_time_increment_5minutes.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
+timeLabels <- c(" ", " ", "<5 minute", " ", "", " ", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+
+library(ggplot2)
+
+for (test in tests) {
+
+m <- algo1_pattern_size_time_increment_5minutes
+
+using_time_window <- 1
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+
+
+test_name <- "itsecurity"
+
+test <- m[which(m[,"Test"] == test_name), ]
+
+tmp = unlist(test[18,11:20], use.names=FALSE)
+count1 = length(tmp[tmp > 0])
+tmp = unlist(test[36,11:20], use.names=FALSE)
+count2 = length(tmp[tmp > 0])
+count = max(count1, count2)
+
+test1 <- test[which(test[,"UsingTimeWindow"] == 1), ]
+
+df <- data.frame(Time=time, Frequency=unlist(test1[c(11)], use.names=FALSE), PatternLength = 2, timeWindow = "Time window")
+for (i in seq(2,count)) { 
+df <- rbind(df, data.frame(Time=time, Frequency=unlist(test1[c(10+i)], use.names=FALSE), PatternLength = i+1, timeWindow = "Time window"))
+}
+
+test1 <- test[which(test[,"UsingTimeWindow"] == 0), ]
+for (i in seq(1,count)) { 
+df <- rbind(df, data.frame(Time=time, Frequency=unlist(test1[c(10+i)], use.names=FALSE), PatternLength = i+1, timeWindow = "Time leap"))
+}
+
+stripLabels = c("2 actors", "3 actors", "4 actors", "5 actors", "6 actors", "7 actors", "8 actors", "9 actors", "10 actors", "11 actors")
+
+df$PatternLength <- factor(df$PatternLength, labels = stripLabels[1:count])
+df$timeWindow <- factor(df$timeWindow)
+
+mytitle = "Comparison of pattern frequency between using time window and time leap w.r.t. patterns' size"
+ggplot(df, aes(x=Time, y=Frequency, color=PatternLength, group=timeWindow, shape=PatternLength, linetype = timeWindow)) +
+    geom_line() +
+    geom_point() + 
+    xlab("Time windows / leaps") +
+    ylab("Number of patterns' instances") +
+    scale_color_discrete(name = "Number of actors") +
+    scale_linetype_discrete(name = "Constrained by") +
+    scale_shape_manual(name = "Number of actors", values = c(0:10)) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10)) +
+    facet_wrap( ~ PatternLength, ncol = 2, scales = "free_y", strip.position = "top", labeller = label_context) +
+    theme(strip.background = element_blank(), strip.placement = "outside")
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+}
+
+############################## PLOTTING COUNT OF 6 PATTERNS - ALGO 3
+FILE: algo3_count_pattern_messege_multiple_receivers.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+timeLabels <-c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+patternLabels <- c("(0102)01","(0102)10","(0102)12","01(0102)","10(0102)","12(0102)")
+
+library(ggplot2)
+
+for (test in tests) {
+
+m <- algo3_count_pattern_messege_multiple_receivers
+
+test_name <- "itsecurity"
+
+test1 <- m[which(m[,"Test"] == test_name), ]
+
+df <- data.frame(Time=time, Frequency=unlist(test1[c(7)], use.names=FALSE), Pattern = patternLabels[1])
+for (i in seq(2,6)) { 
+df <- rbind(df, data.frame(Time=time, Frequency=unlist(test1[c(6+i)], use.names=FALSE), Pattern = patternLabels[i]))
+}
+
+df$diameter <- ceiling(log(df$Frequency))
+df$Time <- factor(df$Time)
+
+mytitle = "Frequency of 6 patterns appeared only in bipartite network"
+mysubtitle = paste("(Those containing 3 actors and 3 edges)\nDataset:", test_name, sep = " ")
+ggplot(df, aes(x=Time, y=Frequency, color=Pattern, group = diameter)) + 
+  geom_point(size=2) + 
+  geom_segment(aes(x=Time, 
+                   xend=Time, 
+                   y=min(Frequency), 
+                   yend=max(Frequency)), 
+               linetype="dashed", 
+               size=0.1) + 
+  labs(title=mytitle, 
+       subtitle=mysubtitle) + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) + 
+    xlab("Time windows") +
+    ylab("Number of patterns' instances") +
+    scale_color_discrete(name = "Encoding of\npatterns") +
+	scale_x_discrete(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10)) +
+    coord_flip()
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
+
+}
+
+############################## PLOTTING HEAT MAP 3 NODES 3 EDGES PATTERNS
+File: algo3_count_pattern_snap.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+library(ggplot2)
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+timeLabels <-c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+patternLabelsy <- c("12-32","12-23","12-31","12-13","12-21","12-12")
+patternLabelsx <- c("12","21","13","31","23","32")
+
+m <- algo3_count_pattern_snap
+
+
+test_name <- "itsecurity"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test1 <- test[which(test[,"TimeWindow"] == time[1]), ]
+
+df <- data.frame(Time=time[1], FirstEdges = patternLabelsy, Frequency=unlist(test1[c(8)], use.names=FALSE), ThirdEdge = patternLabelsx[1])
+for (i in seq(2,6)) { 
+df <- rbind(df, data.frame(Time=time[1], FirstEdges = patternLabelsy, Frequency=unlist(test1[c(7+i)], use.names=FALSE), ThirdEdge = patternLabelsx[i]))
+}
+
+for (time_i in seq(2,11)) {
+	test1 <- test[which(test[,"TimeWindow"] == time[time_i]), ]
+	for (i in seq(1,6)) { df <- rbind(df, data.frame(Time=time[time_i], FirstEdges = patternLabelsy, Frequency=unlist(test1[c(7+i)], use.names=FALSE), ThirdEdge = patternLabelsx[i])) }
+}
+
+df$TimeLabels <- factor(df$Time, labels = timeLabels)
+
+#regular frequency
+mytitle = "Frequency of all 3-actor-3-edge patterns found by snap library"
+mysubtitle = paste("Dataset:", test_name, sep = " ")
+ggplot(df, aes(x = ThirdEdge, y = FirstEdges, fill = Frequency)) + 
+	geom_tile() + 
+	coord_equal() + 
+	xlab("The third edge") + 
+	ylab("The first two edges") + 
+    scale_fill_continuous(name = "Pattern\nfrequency") +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	facet_wrap( ~ TimeLabels, ncol = 4, scales = "fixed", labeller = label_context)
+
+#log of frequency
+mytitle = "Frequency of all 3-actor-3-edge patterns found by snap library"
+mysubtitle = paste("Dataset:", test_name, sep = " ")
+ggplot(df, aes(x = ThirdEdge, y = FirstEdges, fill = log(Frequency))) + 
+	geom_tile() + 
+	coord_equal() + 
+	xlab("The third edge") + 
+	ylab("The first two edges") + 
+    scale_fill_continuous(name = "Log of\npattern\nfrequency") +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	facet_wrap( ~ TimeLabels, ncol = 4, scales = "fixed", labeller = label_context)
+
+
+dev.copy(png,filename=paste(paste(test_name, toString(t), sep = "_"), ".png", sep = ""));
+dev.off()
+
+
+############################## PLOTTING HEAT MAP COMPARE TIME WINDOW VS TIME LEAP
+File: algo3_count_pattern_snap.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+library(plyr)
+library(viridis)
+library(tidyverse)
+library(ggthemes)
+library(gridExtra)
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+timeLabels <-c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+patternLabelsy <- c("12-32","12-23","12-31","12-13","12-21","12-12")
+patternLabelsx <- c("12","21","13","31","23","32")
+MINUTE <- 60000
+
+
+m <- all_patterns_devices
+
+test_name <- "devices"
+
+df <- m
+df <- ddply(df,.(time_window, time_leap, length),summarize,freq=sum(frequency))
+df <- df[df$length != 1,]
+maxLen <- max(df$length)
+
+df$time_window <- factor(df$time_window)
+df$time_leap <- factor(df$time_leap)
+df$length <- factor(df$length)
+
+#regular frequency
+ggplot(df, aes(x = time_leap, y = time_window, fill = freq)) + 
+	geom_tile(color="white", size=0.1) + 
+	coord_equal() + 
+	xlab("Time leaps") + 
+	ylab("Time windows") + 
+    scale_fill_continuous(name = "Pattern\nfrequency") +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	facet_wrap( ~ length, ncol = 4, scales = "fixed", labeller = label_context) +
+	scale_fill_viridis(name="# Events", label=comma)
+
+#log of frequency
+mytitle = "Frequency of all 3-actor-3-edge patterns found by snap library"
+mysubtitle = paste("Dataset:", test_name, sep = " ")
+ggplot(df, aes(x = ThirdEdge, y = FirstEdges, fill = log(Frequency))) + 
+	geom_tile() + 
+	coord_equal() + 
+	xlab("The third edge") + 
+	ylab("The first two edges") + 
+    scale_fill_continuous(name = "Log of\npattern\nfrequency") +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	facet_wrap( ~ TimeLabels, ncol = 4, scales = "fixed", labeller = label_context)
+
+########################
+mytitle = paste("Patterns of length ", test_name, sep = " ")
+plot_func <- function(df, name) {
+  ggplot(df, aes(x = time_leap, y = time_window, fill = freq)) + 
+	geom_tile(color="white", size=0.1) + 
+	coord_equal() + 
+	xlab(" ") + 
+	ylab(" ") + 
+    scale_fill_continuous(name = "Pattern\nfrequency") +
+    labs(title = paste("Patterns of length ", name, sep = " ")) +
+	scale_fill_viridis(name="") +
+	theme_tufte() +
+	theme(axis.text.y=element_text(size=6)) +
+	theme(axis.text.x=element_text(angle=90, size=6, vjust=0.5)) +
+	theme(legend.text=element_text(size=6))
+}
+
+nested_tmp <- df %>% 
+  group_by(length) %>% 
+  nest() %>% 
+  mutate(plots = map2(data, length, plot_func)) 
+
+gridExtra::grid.arrange(grobs = nested_tmp$plots, top = "Frequency of patterns of different length\nconstrained with both time windows and time leaps")
+#############################
+
+lapply(seq(2,maxLen), function(cc) {
+  gg <- ggplot(filter(df, length==cc), 
+               aes(x=time_leap, y=time_window, fill=freq, frame=length))
+  gg <- gg + geom_tile(color="white", size=0.1)
+  gg <- gg + scale_x_discrete(expand=c(0,0))
+  gg <- gg + scale_y_discrete(expand=c(0,0))
+  gg <- gg + scale_fill_viridis(name="")
+  gg <- gg + coord_equal()
+  gg <- gg + labs(x=NULL, y=NULL, 
+                  title=paste("Patterns of length", sprintf("%s", cc), sep = " "))
+  gg <- gg + theme_tufte(base_family="Helvetica")
+  gg <- gg + theme(axis.ticks=element_blank())
+  gg <- gg + theme(axis.text=element_text(size=5))
+  gg <- gg + theme(panel.border=element_blank())
+  gg <- gg + theme(plot.title=element_text(hjust=0, size=6))
+  gg <- gg + theme(panel.margin.x=unit(0.5, "cm"))
+  gg <- gg + theme(panel.margin.y=unit(0.5, "cm"))
+  gg <- gg + theme(legend.title=element_text(size=6))
+  gg <- gg + theme(legend.title.align=1)
+  gg <- gg + theme(legend.text=element_text(size=6))
+  gg <- gg + theme(legend.position="bottom")
+  gg <- gg + theme(legend.key.size=unit(0.2, "cm"))
+  gg <- gg + theme(legend.key.width=unit(1, "cm"))
+  gg
+}) -> cclist
+
+cclist[["ncol"]] <- 2
+
+do.call(gridExtra::grid.arrange, cclist)
+
+dev.copy(png,filename=paste(paste(test_name, toString(t), sep = "_"), ".png", sep = ""));
+dev.off()
+
+############################## PLOTTING HEAT MAP COMPARE PATTERN LENGTH AND SIZE
+File: algo3_count_pattern_snap.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(RColorBrewer)
+library(plyr)
+library(viridis)
+library(tidyverse)
+library(ggthemes)
+library(gridExtra)
+library(scales)
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 1200000, 2400000, 3600000)
+timeLabels <-c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "20 minutes", "40 minutes", "1 hour")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+patternLabelsy <- c("12-32","12-23","12-31","12-13","12-21","12-12")
+patternLabelsx <- c("12","21","13","31","23","32")
+MINUTE <- 60000
+sizeLabelsx <- c("2","3")
+
+
+m <- all_patterns_smartdevices
+
+df <- m
+df <- ddply(df,.(time_window, time_leap, length, size),summarize,freq=sum(frequency))
+df2 <- df[df$length != 1,]
+df2 <- df2[df2$time_window == 60*MINUTE,]
+df2 <- df2[df2$time_window == 60*MINUTE,]
+maxLen <- max(df2$length)
+
+df2$time_window <- factor(df2$time_window)
+df2$time_leap <- factor(df2$time_leap)
+df2$length <- factor(df2$length)
+df2$size <- factor(df2$size)
+
+#regular frequency
+ggplot(df2, aes(x = size, y = length, fill = freq)) + 
+	geom_tile(color="white", size=0.1) + 
+	coord_equal() + 
+	xlab("Pattern size") + 
+	ylab("Pattern length") + 
+    scale_fill_continuous(name = "Pattern\nfrequency") +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	facet_wrap( ~ time_leap, ncol = 10, scales = "fixed", labeller = label_context) +
+	scale_fill_viridis(name="# Events")
+
+
+############################## PLOTTING NO. OF PATTERNS BY LENGTH ------ DEVICES ---- 2 HOURS
+FILE: algo1_pattern_size_time_increment_5minutes.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(ggplot2)
+library(RColorBrewer)
+time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000, 3900000, 4200000, 4500000, 4800000, 5100000, 5400000, 5700000, 6000000, 6300000, 6600000, 6900000, 7200000)
+timeLabels <- c(" ", " ", "<2 minutes", " ", "", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour", "65 minutes", "70 minutes", "75 minutes", "80 minutes", "85 minutes", "90 minutes", "95 minutes", "100 minutes", "105 minutes", "110 minutes", "115 minutes", "2 hours")
+#time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
+
+
+
+m <- algo1_pattern_length_2h
+
+using_time_window <- 0
+yLabel <- "leaps"
+if (using_time_window) {yLabel <- "windows"}
+
+
+test_name <- "devices"
+
+test <- m[which(m[,"Test"] == test_name), ]
+test <- test[which(test[,"UsingTimeWindow"] == using_time_window), ]
+
+df <- data.frame(Time=time, Frequency=unlist(test[c(11)], use.names=FALSE), PatternLength = 2)
+for (i in seq(2,10)) { df <- rbind(df, data.frame(Time=time, Frequency=unlist(test[c(10+i)], use.names=FALSE), PatternLength = i+1)) }
+df$PatternLength <- factor(df$PatternLength)
+#df$Time <- factor(df$Time)
+
+mytitle = paste(paste("Pattern frequency of different lengths w.r.t. time", yLabel, sep = " "), "up to two hours", sep = " ")
+ggplot(df, aes(x=Time, y=Frequency, color=PatternLength, group=PatternLength, shape=PatternLength, linetype = PatternLength)) +
+    geom_line() +
+    geom_point() + 
+    xlab(paste("Time", yLabel, sep = " ")) +
+    ylab("Number of patterns' instances") +
+    scale_color_discrete(name = "Number\nof edges") +
+    scale_linetype_discrete(name = "Number\nof edges") +
+    scale_shape_manual(name = "Number\nof edges", values = c(0:10)) +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10))
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
