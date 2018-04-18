@@ -1188,17 +1188,15 @@ time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 12000
 timeLabels <- c(" ", " ", "<2 minutes", " ", "", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour", "65 minutes", "70 minutes", "75 minutes", "80 minutes", "85 minutes", "90 minutes", "95 minutes", "100 minutes", "105 minutes", "110 minutes", "115 minutes", "2 hours")
 labelsX <- c("1st leap", "2nd leap", "3rd leap", "4th leap", "5th leap", "6th leap", "7th leap", "8th leap", "9th leap", "10th leap", "11th leap", "12th leap", "13th leap", "14th leap", "15th leap")
 
-
-
 m <- time_leap_distribution
 
-using_time_window <- 0
+using_time_window <- 1
 yLabel <- "leap"
 if (using_time_window) {yLabel <- "window"}
 
 mytime <- 3600000
 
-test_name <- "devices"
+test_name <- tests[1]
 
 test <- m[which(m[,"test"] == test_name), ]
 test <- test[which(test[,"using_time_window"] == using_time_window), ]
@@ -1207,6 +1205,21 @@ df <- test
 maxN <- max(df$nth)
 df$nth <- factor(df$nth, labels = labelsX[1:maxN])
 
+############# Histogram + distribution
+mytitle = "Distribution of the n-th time leap between messages (nth and (n+1)th edges)"
+mysubtitle1 = paste(paste("Bounded by time", yLabel, sep = " "), "of", sep=" ")
+mysubtitle = paste(paste(paste(mysubtitle1, toString(mytime), sep=" "), "ms\nDataset:", sep = " "), test_name, sep = " ")
+ggplot(df, aes(x=time_leap)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth = 20000)+
+ geom_density(alpha=.2, fill="#FF6666") +
+    xlab("Time leap") +
+    ylab("Distribution of n-th leap") +
+    labs(title = mytitle, subtitle = mysubtitle) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
+	facet_wrap( ~ nth, ncol = 2, scales = "free_y", labeller = label_context)
+
+############# Histogram only
 mytitle = "Distribution of the n-th time leap between messages"
 mysubtitle = paste(paste(paste("Bounded by time", yLabel, sep = " "), "of one hour\nDataset: ", sep = " "), test_name, sep = " ")
 ggplot(df, aes(x=time_leap, color=nth, fill=nth)) + 
@@ -1215,19 +1228,6 @@ ggplot(df, aes(x=time_leap, color=nth, fill=nth)) +
     ylab("Frequency of edges") +
 	scale_x_continuous(labels= timeLabels, breaks = time) +
     labs(title = mytitle, subtitle = mysubtitle) +
-	theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
-	facet_wrap( ~ nth, ncol = 2, scales = "free_y", labeller = label_context)
-
-############# Histogram + distribution
-mytitle = "Distribution of the n-th time leap between messages (nth and (n+1)th edges)"
-mysubtitle = paste(paste(paste("Bounded by time", yLabel, sep = " "), "of one hour\nDataset: ", sep = " "), test_name, sep = " ")
-ggplot(df, aes(x=time_leap)) + 
- geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth = 20000)+
- geom_density(alpha=.2, fill="#FF6666") +
-    xlab("Time leap") +
-    ylab("Distribution of n-th leap") +
-    labs(title = mytitle, subtitle = mysubtitle) +
-	scale_x_continuous(labels= timeLabels, breaks = time) +
 	theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
 	facet_wrap( ~ nth, ncol = 2, scales = "free_y", labeller = label_context)
 
@@ -1249,13 +1249,13 @@ labelsX <- c("2-edge", "3-edge", "4-edge", "5-edge", "6-edge", "7-edge", "8-edge
 
 m <- time_window_distribution
 
-using_time_window <- 0
+using_time_window <- 1
 yLabel <- "leap"
 if (using_time_window) {yLabel <- "window"}
 
 mytime <- 3600000
 
-test_name <- "devices"
+test_name <- tests[1]
 
 test <- m[which(m[,"test"] == test_name), ]
 test <- test[which(test[,"using_time_window"] == using_time_window), ]
@@ -1264,6 +1264,21 @@ df <- test
 maxLen <- max(df$length) - 1
 df$length <- factor(df$length, labels = labelsX[1:maxLen])
 
+############# Histogram + distribution
+mytitle = "Distribution of the time window of patterns of different length"
+mysubtitle1 = paste(paste("Bounded by time", yLabel, sep = " "), "of", sep=" ")
+mysubtitle = paste(paste(paste(mysubtitle1, toString(mytime), sep=" "), "ms\nDataset:", sep = " "), test_name, sep = " ")
+ggplot(df, aes(x=time_window)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth = 20000)+
+ geom_density(alpha=.2, fill="#FF6666") +
+    xlab("Time window") +
+    ylab("Pattern distribution") +
+    labs(title = mytitle, subtitle = mysubtitle) +
+	scale_x_continuous(labels= timeLabels, breaks = time) +
+	theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
+	facet_wrap( ~ length, ncol = 2, scales = "free_y", labeller = label_context)
+
+############# Histogram only
 mytitle = "Distribution of the time window of patterns of different length"
 mysubtitle = paste(paste(paste("Bounded by time", yLabel, sep = " "), "of one hour\nDataset: ", sep = " "), test_name, sep = " ")
 ggplot(df, aes(x=time_window, color=length, fill=length)) + 
@@ -1275,18 +1290,6 @@ ggplot(df, aes(x=time_window, color=length, fill=length)) +
 	theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
 	facet_wrap( ~ length, ncol = 2, scales = "free_y", labeller = label_context)
 
-############# Histogram + distribution
-mytitle = "Distribution of the time window of patterns of different length"
-mysubtitle = paste(paste(paste("Bounded by time", yLabel, sep = " "), "of one hour\nDataset: ", sep = " "), test_name, sep = " ")
-ggplot(df, aes(x=time_window)) + 
- geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth = 20000)+
- geom_density(alpha=.2, fill="#FF6666") +
-    xlab("Time window") +
-    ylab("Pattern distribution") +
-    labs(title = mytitle, subtitle = mysubtitle) +
-	scale_x_continuous(labels= timeLabels, breaks = time) +
-	theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
-	facet_wrap( ~ length, ncol = 2, scales = "free_y", labeller = label_context)
 
 dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
 dev.off()
