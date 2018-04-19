@@ -990,9 +990,9 @@ patternLabelsx <- c("12","21","13","31","23","32")
 MINUTE <- 60000
 
 
-m <- all_patterns_smartdevices
+m <- all_patterns_itsecurity
 
-test_name <- "smartdevices"
+test_name <- "itsecurity"
 
 df <- m
 df <- ddply(df,.(time_window, time_leap, length),summarize,freq=sum(frequency))
@@ -1078,7 +1078,7 @@ lapply(seq(2,maxLen), function(cc) {
   gg
 }) -> cclist
 
-cclist[["ncol"]] <- 4
+cclist[["ncol"]] <- 3
 
 do.call(gridExtra::grid.arrange, cclist)
 
@@ -1105,19 +1105,22 @@ MINUTE <- 60000
 sizeLabelsx <- c("2","3")
 
 
-m <- all_patterns_smartdevices
+m <- all_patterns_itsecurity
+
+test_name <- "itsecurity"
 
 df <- m
 df <- ddply(df,.(time_window, time_leap, length, size),summarize,freq=sum(frequency))
 df2 <- df[df$length != 1,]
 df2 <- df2[df2$time_window == 60*MINUTE,]
-df2 <- df2[df2$time_window == 60*MINUTE,]
+#df2 <- df2[df2$time_window == 60*MINUTE,]
 maxLen <- max(df2$length)
 
 df2$time_window <- factor(df2$time_window)
 df2$time_leap <- factor(df2$time_leap)
 df2$length <- factor(df2$length)
 df2$size <- factor(df2$size)
+df2$freq <- log(df2$freq)
 
 #regular frequency
 ggplot(df2, aes(x = size, y = length, fill = freq)) + 
@@ -1125,10 +1128,9 @@ ggplot(df2, aes(x = size, y = length, fill = freq)) +
 	coord_equal() + 
 	xlab("Pattern size") + 
 	ylab("Pattern length") + 
-    scale_fill_continuous(name = "Pattern\nfrequency") +
     labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
 	facet_wrap( ~ time_leap, ncol = 10, scales = "fixed", labeller = label_context) +
-	scale_fill_viridis(name="# Events")
+	scale_fill_viridis(name="Log of\npattern\nfrequency")
 
 
 ############################## PLOTTING NO. OF PATTERNS BY LENGTH ------ DEVICES ---- 2 HOURS
