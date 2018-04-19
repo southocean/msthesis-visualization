@@ -1295,3 +1295,67 @@ ggplot(df, aes(x=time_window, color=length, fill=length)) +
 
 dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
 dev.off()
+
+
+
+############################## PLOTTING TIME WINDOW DISTRIBUTION ------ DEVICES
+FILE: algo1_pattern_size_time_increment_5minutes.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(ggplot2)
+library(RColorBrewer)
+groupLabels <- c("actors", "actors with in-degree", "actors with out-degrees", "messages", "edges")
+
+
+############# One dataset
+m <- network_temporal_growth_info
+
+test_name <- tests[2]
+
+test <- m[which(m[,"test"] == test_name), ]
+
+df <- data.frame(t=unlist(test[c(2)], use.names=FALSE), freq=unlist(test[c(3)], use.names=FALSE), group = groupLabels[1])
+for (i in seq(2,5)) { 
+df <- rbind(df, data.frame(t=unlist(test[c(2)], use.names=FALSE), freq=unlist(test[c(2+i)], use.names=FALSE), group = groupLabels[i]))
+}
+
+#df$Frequency <- ceiling(log(df$Frequency))
+df$group <- factor(df$group)
+
+mytitle = "Temporal growth of bipartite network"
+ggplot(df, aes(x=t, y=freq, color=group, group=group, linetype = group)) +
+    geom_line() +
+    xlab("Time (ms)") +
+    ylab("Frequency of appearance") +
+    scale_color_discrete(name = "Network info") +
+    scale_linetype_discrete(name = "Network info") +
+    labs(title = mytitle, subtitle = paste("Dataset:", test_name, sep = " ")) +
+  theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10))
+
+############# All datasets
+m <- network_temporal_growth_info
+
+test <- m
+
+df <- data.frame(t=unlist(test[c(2)], use.names=FALSE), data=unlist(test[c(1)], use.names=FALSE), freq=unlist(test[c(3)], use.names=FALSE), group = groupLabels[1])
+for (i in seq(2,5)) { 
+df <- rbind(df, data.frame(t=unlist(test[c(2)], use.names=FALSE), data=unlist(test[c(1)], use.names=FALSE), freq=unlist(test[c(2+i)], use.names=FALSE), group = groupLabels[i]))
+}
+
+df$data <- factor(df$data)
+df$group <- factor(df$group)
+
+mytitle = "Temporal growth of bipartite network"
+ggplot(df, aes(x=t, y=freq, color=group, group=group, linetype = group)) +
+    geom_line() +
+    xlab("Time (ms)") +
+    ylab("Frequency of appearance") +
+    scale_color_discrete(name = "Network info") +
+    scale_linetype_discrete(name = "Network info") +
+    labs(title = mytitle) +
+  facet_wrap( ~ data, ncol = 5, scales = "free_y", labeller = label_value) +
+  theme(axis.text.x  = element_text(angle=45, hjust=1, size=10), axis.text.y  = element_text(size=10))
+
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
