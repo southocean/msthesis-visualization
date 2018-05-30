@@ -1334,8 +1334,8 @@ library(tidyverse)
 library(ggthemes)
 library(gridExtra)
 library(scales)
-time <- c(1000, 5000, 10000, 30000, 60000, 120000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
-timeLabels <- c("1 second", "5 seconds", "10 seconds", "30 seconds", "1 minute", "2 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
+time <- c(60000, 300000, 600000, 900000, 1200000, 1500000, 1800000, 2100000, 2400000, 2700000, 3000000, 3300000, 3600000)
+timeLabels <- c("1 minutes", "5 minutes", "10 minutes", "15 minutes", "20 minutes", "25 minutes", "30 minutes", "35 minutes", "40 minutes", "45 minutes", "50 minutes", "55 minutes", "1 hour")
 #time <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18)
 MINUTE <- 60000
 
@@ -1343,23 +1343,32 @@ library(ggplot2)
 
 m <- all_patterns_devices
 
-using_time_window <- 0
-yLabel <- "leaps"
-if (using_time_window) {yLabel <- "windows"}
-
 test_name <- "devices"
 
 test <- m
 
 df <- test
 df <- df[df$length > 1,]
-df <- df[df$time_window == df$time_leap,]
+
+ret <- df
+ret <- ret[ret$time_window == time[1],]
+ret <- ret[ret$time_leap == time[1],]
+
+for (i in seq(2,13)) { 
+newdf <- df
+newdf <- newdf[newdf$time_window == time[i],]
+newdf <- newdf[newdf$time_leap == time[i],]
+ret <- rbind(ret, newdf)
+}
+
+df <- ret
+
 df$time_window <- factor(df$time_window)
-df <- df[order(df$length),]
-colnames(df) <- c("test", "time_window", "time_leaf", "pattern", "frequency", "size", "order")
+
+colnames(df) <- c("test", "time_window", "time_leap", "pattern", "frequency", "size", "order")
 
 mytitle = "Actual pattern frequency of different sizes and orders"
-mysubtitle = "Dataset: devices"
+mysubtitle = paste("Dataset:", test_name, sep = " ")
 ggplot(df, aes(x=frequency, y=pattern, color=time_window)) +
     geom_point() + 
     facet_grid(size ~ order, scales = "free", labeller = label_both) +
@@ -1367,6 +1376,77 @@ ggplot(df, aes(x=frequency, y=pattern, color=time_window)) +
     xlab("Number of patterns' instances") +
     labs(title = mytitle, subtitle = mysubtitle) +
     scale_color_discrete(name="Time window",
-                         breaks=time,
                          labels=timeLabels)
 
+
+test <- m
+
+df <- test
+df <- df[df$length > 1,]
+#df <- df[df$time_window - df$time_leap == 0,]
+df$time_window <- factor(df$time_window)
+colnames(df) <- c("test", "time_window", "time_leap", "pattern", "frequency", "size", "order")
+
+mytitle = "Actual pattern frequency of different sizes and orders"
+mysubtitle = paste("Dataset:", test_name, sep = " ")
+ggplot(df, aes(x=frequency, y=pattern, color=time_window)) +
+    geom_point() + 
+    facet_grid(size ~ order, scales = "free", labeller = label_both) +
+    ylab("Patterns' code") +
+    xlab("Number of patterns' instances") +
+    labs(title = mytitle, subtitle = mysubtitle) +
+    scale_color_discrete(name="Time window") + 
+    scale_color_discrete(breaks=seq(MINUTE,60*MINUTE,MINUTE)) + 
+    scale_color_discrete(breaks=seq(MINUTE,60*MINUTE,MINUTE)) + 
+    scale_color_discrete(labels=timeLabels)
+
+
+
+
+############################## PLOTTING TIME LEAP DISTRIBUTION IN STARS ------
+FILE: leap_time_in_stars.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(ggplot2)
+library(RColorBrewer)
+MINUTE <- 60000
+time <- seq(20*MINUTE,300*MINUTE,20*MINUTE)
+timeLabels <- c("20 min", "40 min", "60 min", "80 min", "100 min", "120 min", "140 min", "160 min", "180 min", "200 min", "220 min", "240 min", "260 min", "280 min", "300 min")
+labelsX <- c("1st leap", "2nd leap", "3rd leap", "4th leap", "5th leap", "6th leap", "7th leap", "8th leap", "9th leap", "10th leap", "11th leap", "12th leap", "13th leap", "14th leap", "15th leap")
+
+df <- leap_time_in_stars
+
+############# Histogram + distribution
+mytitle = "Distribution of the time leap between two consecutive messages sent by the same actor (nth and (n+1)th edges)"
+ggplot(df) + 
+ geom_histogram(aes(x=time, y=..density..), colour="black", fill="white", binwidth = 20000)+
+ geom_density(aes(x=time, y=..density..), adjust=.5, alpha=.4, fill="#FF6666") +
+    xlab("Time leap") +
+    ylab("Frequency of time leap value") +
+    labs(title = mytitle) +
+  scale_x_continuous(labels= timeLabels, breaks = time) +
+  theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
+  facet_wrap( ~ Dataset, ncol = 2, scales = "free_y", labeller = label_context)
+
+
+time <- c(sqrt(5*MINUTE),sqrt(10*MINUTE),sqrt(20*MINUTE),sqrt(40*MINUTE),sqrt(60*MINUTE),sqrt(80*MINUTE),sqrt(100*MINUTE),sqrt(120*MINUTE),sqrt(140*MINUTE),sqrt(160*MINUTE),sqrt(180*MINUTE),sqrt(200*MINUTE),sqrt(220*MINUTE),sqrt(240*MINUTE),sqrt(260*MINUTE),sqrt(280*MINUTE),sqrt(300*MINUTE))
+timeLabels <- c("5 min", "10 min", "20 min", "40 min", "60 min", "80 min", "100 min", "120 min", "140 min", "160 min", "180 min", "200 min", "220 min", "240 min", "260 min", "280 min", "300 min")
+df <- leap_time_in_stars
+df["time"] <- sqrt(df["time"])
+mytitle = "Distribution of the time leap between two consecutive messages sent by the same actor (nth and (n+1)th edges)"
+ggplot(df) + 
+ geom_histogram(aes(x=time, y=..density..), colour="black", fill="white", binwidth = 20)+
+ geom_density(aes(x=time, y=..density..), adjust=.5, alpha=.4, fill="#FF6666") +
+    xlab("Time leap") +
+    ylab("Distribution of time leap value") +
+    labs(title = mytitle) +
+  scale_x_continuous(labels= timeLabels, breaks = time) +
+  theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
+  facet_wrap( ~ Dataset, ncol = 2, scales = "free_y", labeller = label_both)
+
+ggplot(df, aes(x=time)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth = 20000)+
+stat_density(aes(y=..scaled..), geom="line")
+
+dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
+dev.off()
