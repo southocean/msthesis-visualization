@@ -1411,23 +1411,6 @@ library(ggplot2)
 library(RColorBrewer)
 MINUTE <- 60000
 time <- seq(20*MINUTE,300*MINUTE,20*MINUTE)
-timeLabels <- c("20 min", "40 min", "60 min", "80 min", "100 min", "120 min", "140 min", "160 min", "180 min", "200 min", "220 min", "240 min", "260 min", "280 min", "300 min")
-labelsX <- c("1st leap", "2nd leap", "3rd leap", "4th leap", "5th leap", "6th leap", "7th leap", "8th leap", "9th leap", "10th leap", "11th leap", "12th leap", "13th leap", "14th leap", "15th leap")
-
-df <- leap_time_in_stars
-
-############# Histogram + distribution
-mytitle = "Distribution of the time leap between two consecutive messages sent by the same actor (nth and (n+1)th edges)"
-ggplot(df) + 
- geom_histogram(aes(x=time, y=..density..), colour="black", fill="white", binwidth = 20000)+
- geom_density(aes(x=time, y=..density..), adjust=.5, alpha=.4, fill="#FF6666") +
-    xlab("Time leap") +
-    ylab("Frequency of time leap value") +
-    labs(title = mytitle) +
-  scale_x_continuous(labels= timeLabels, breaks = time) +
-  theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
-  facet_wrap( ~ Dataset, ncol = 2, scales = "free_y", labeller = label_context)
-
 
 time <- c(sqrt(5*MINUTE),sqrt(10*MINUTE),sqrt(20*MINUTE),sqrt(40*MINUTE),sqrt(60*MINUTE),sqrt(80*MINUTE),sqrt(100*MINUTE),sqrt(120*MINUTE),sqrt(140*MINUTE),sqrt(160*MINUTE),sqrt(180*MINUTE),sqrt(200*MINUTE),sqrt(220*MINUTE),sqrt(240*MINUTE),sqrt(260*MINUTE),sqrt(280*MINUTE),sqrt(300*MINUTE))
 timeLabels <- c("5 min", "10 min", "20 min", "40 min", "60 min", "80 min", "100 min", "120 min", "140 min", "160 min", "180 min", "200 min", "220 min", "240 min", "260 min", "280 min", "300 min")
@@ -1448,5 +1431,56 @@ ggplot(df, aes(x=time)) +
  geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth = 20000)+
 stat_density(aes(y=..scaled..), geom="line")
 
-dev.copy(png,filename=paste(paste(test_name, paste("time", yLabel, sep = "_"), sep = "_"), ".png", sep = ""));
-dev.off()
+
+
+
+############################## PLOTTING TIME LEAP DISTRIBUTION IN WHOLE NETWORK ------
+FILE: leap_time_in_stars.csv
+
+tests <- c("smartdevices", "devices", "smarthomes", "datamining", "itsecurity")
+library(ggplot2)
+library(RColorBrewer)
+SECOND <- 1000
+MINUTE <- 60000
+time <- seq(20*MINUTE,300*MINUTE,20*MINUTE)
+
+time <- c(1*MINUTE,2*MINUTE,3*MINUTE,4*MINUTE,5*MINUTE,6*MINUTE,7*MINUTE,8*MINUTE,9*MINUTE,10*MINUTE)
+timeLabels <- c("1 min", "2 min", "3 min", "4 min", "5 min", "6 min", "7 min", "8 min", "9 min", "10 min")
+time <- c(1*SECOND,2*SECOND,3*SECOND,5*SECOND,10*SECOND,20*SECOND,40*SECOND,1*MINUTE,2*MINUTE, 3*MINUTE,5*MINUTE,7*MINUTE,10*MINUTE,15*MINUTE,20*MINUTE,30*MINUTE)
+
+time <- c(log(1*SECOND),log(2*SECOND),log(3*SECOND),log(5*SECOND),log(10*SECOND),log(20*SECOND),log(40*SECOND),log(1*MINUTE),log(2*MINUTE), log(3*MINUTE),log(5*MINUTE),log(7*MINUTE),log(10*MINUTE),log(15*MINUTE),log(20*MINUTE),log(30*MINUTE))
+timeLabels <- c("1 sec", "2 sec", "3 sec", "5 sec", "10 sec", "20 sec", "40 sec", "1 min", "2 min", "3 min", "5 min", "7 min", "10 min", "15 min", "20 min", "30 min")
+df <- leap_time_in_whole_network
+df["time"] <- log(df["time"])
+#df <- df[df$time < 5*SECOND,]
+mytitle = "Distribution of the time leap between two consecutive messages sent by the same actor (nth and (n+1)th edges)"
+ggplot(df) + 
+ #geom_histogram(aes(x=time), colour="black", fill="white", binwidth = 20)+
+ geom_density(aes(x=time, y=..density..), adjust=.5, alpha=.4, fill="#FF6666") +
+    xlab("Time leap") +
+    ylab("Distribution of time leap value") +
+    labs(title = mytitle) +
+  scale_x_continuous(labels= timeLabels, breaks = time) +
+  theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
+  facet_wrap( ~ Dataset, ncol = 2, scales = "free_y", labeller = label_both)
+
+ggplot(df, aes(x=time)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white", binwidth = 20000)+
+stat_density(aes(y=..scaled..), geom="line")
+
+mytitle = "Distribution of the time difference between every two messages sent in the network)"
+time <- c(log(1*SECOND),log(2*SECOND),log(3*SECOND),log(5*SECOND),log(10*SECOND),log(20*SECOND),log(40*SECOND),log(1*MINUTE),log(2*MINUTE), log(3*MINUTE),log(5*MINUTE),log(7*MINUTE),log(10*MINUTE),log(15*MINUTE),log(20*MINUTE),log(30*MINUTE))
+timeLabels <- c("1 sec", "2 sec", "3 sec", "5 sec", "10 sec", "20 sec", "40 sec", "1 min", "2 min", "3 min", "5 min", "7 min", "10 min", "15 min", "20 min", "30 min")
+df <- leap_time_in_whole_network
+df["time"] <- log(df["time"])
+ggplot(df, aes(y=time, x=Dataset)) +
+  geom_jitter(alpha = 0.1) +
+  scale_y_continuous(labels= timeLabels, breaks = time) +
+  theme(axis.text.x  = element_text(angle=45, hjust=1, size=8), axis.text.y  = element_text(size=10)) +
+    xlab("Dataset") +
+    ylab("Time difference") +
+    labs(title = mytitle)
+
+
+############################## PLOTTING TIME LEAP DISTRIBUTION IN STARS ------
+df <- ddply(df,.(time_window, time_leap, length),summarize,freq=sum(frequency))
