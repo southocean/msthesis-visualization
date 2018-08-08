@@ -1,0 +1,2 @@
+test,time_window,time_leap,pattern,frequency,length,size
+model_BA_5000_1.0_2, 3600000, 3600000, 01, 3330, 1, 2
